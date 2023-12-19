@@ -4,7 +4,7 @@
  - easy to read (bc its prolly not good)
  - easy to learn from (probably)
 
-### TO-DO
+### to-to
 
  - input queuing
  - main menu

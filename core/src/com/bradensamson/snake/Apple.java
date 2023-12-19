@@ -2,6 +2,9 @@ package com.bradensamson.snake;
 
 import java.util.ArrayList;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Apple {
@@ -41,6 +44,16 @@ public class Apple {
 
         apple.x = x;
         apple.y = y;
+    }
+
+    public void render(SpriteBatch batch, ShapeRenderer renderer, Color color) {
+        batch.begin();
+            renderer.begin(ShapeRenderer.ShapeType.Filled);
+                renderer.rect(apple.x, apple.y, apple.width, apple.height);
+                renderer.setColor(color);
+            renderer.end();
+        batch.end();
+
     }
     
 }

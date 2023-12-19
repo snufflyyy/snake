@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -50,8 +53,13 @@ public class Snake {
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && snakeDirection != direction.up) {
             snakeDirection = direction.down;
         }
+        // pauses the game
         if (Gdx.input.isKeyPressed(Input.Keys.P)) {
             snakeDirection = null;
+        }
+        // restarts the game
+		if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            restart();
         }
     }
 
@@ -123,12 +131,41 @@ public class Snake {
         }
     }
 
-    // checks if the snake eats the apple :)
+    // checks if the snake eats the apple
     public void checkIfOverlapingApple(Apple apple) {
         if (snakeHead.overlaps(apple.apple)) {
             score = score + 5;
             apple.spawnApple(snakeBody);
         }
+    }
+
+    public void update(Apple apple, long gameSpeed) {
+
+        getInput();
+
+		if (alive) {
+			if (TimeUtils.nanoTime() - lastMoveTime > 105000000) {
+				checkTail();
+				moveSnake();
+			}
+
+			checkIfOverlapingApple(apple);
+		}
+    }
+
+    public void render(SpriteBatch batch, ShapeRenderer headrenderer, ShapeRenderer bodyRenderer, Color headColor, Color snakeBodyColor) {
+        batch.begin();
+            headrenderer.begin(ShapeRenderer.ShapeType.Filled);
+                headrenderer.rect(snakeHead.x, snakeHead.y, snakeHead.width, snakeHead.height);
+                headrenderer.setColor(headColor);
+            headrenderer.end();
+            bodyRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                for (int i = 0; i < snakeBody.size(); i++) {
+                    bodyRenderer.rect(snakeBody.get(i).x, snakeBody.get(i).y, snakeBody.get(i).width, snakeBody.get(i).height);
+                }
+                bodyRenderer.setColor(snakeBodyColor);
+            bodyRenderer.end();
+        batch.end();
     }
 
 }

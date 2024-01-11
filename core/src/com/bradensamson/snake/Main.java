@@ -1,6 +1,14 @@
 package com.bradensamson.snake;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -25,22 +33,44 @@ public class Main extends ApplicationAdapter {
 	private ShapeRenderer snakeBodyRenderer;
 	private ShapeRenderer appleRenderer;
 
-	private BitmapFont socreFont;
+	private BitmapFont scoreFont;
 
 	private int highScore;
 	private String score;
+
+	private boolean isHighScoreWrittenToFile = false;
 
 	private OrthographicCamera camera;
 
 	@Override
 	public void create () {
+		// high score file creation and reading
+		try {
+			File highScoreFile = new File("highscore.snuf");
+			if (!highScoreFile.createNewFile()) {
+				try {
+					Scanner highScoreScanner = new Scanner(highScoreFile);
+					if (highScoreScanner.hasNext()) {
+						highScore = highScoreScanner.nextInt();
+					}
+					highScoreScanner.close();
+				} catch (FileNotFoundException e) {
+					System.out.println("Error reading high score file");
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("Error with high score file");
+			e.printStackTrace();
+		}
+
 		snake = new Snake();
 		apple = new Apple();
 
 		batch = new SpriteBatch();
 
-		socreFont = new BitmapFont();
-		socreFont.setColor(Color.WHITE);
+		scoreFont = new BitmapFont();
+		scoreFont.setColor(Color.WHITE);
 
 		snakeHeadRenderer = new ShapeRenderer();
 		snakeBodyRenderer = new ShapeRenderer();
@@ -59,6 +89,30 @@ public class Main extends ApplicationAdapter {
 		if (snake.score > highScore) {
 			highScore = snake.score;
 		}
+
+		// high score writing
+		if (!snake.alive && !isHighScoreWrittenToFile) {
+			try {
+				FileWriter scoreWriter = new FileWriter("highscore.snuf");
+				scoreWriter.write(Integer.toString(highScore));
+				scoreWriter.close();
+				isHighScoreWrittenToFile = true;
+			} catch (IOException e) {
+				System.out.println("Error with writing high score to file");
+				e.printStackTrace();
+			}
+		}
+
+		// restarts the game
+		if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+            snake.restart();
+			isHighScoreWrittenToFile = false;
+        }
+		
+		// pauses the game
+		if (Gdx.input.isKeyPressed(Input.Keys.P)) {
+			snake.snakeDirection = null;
+		}
 		
 		// sets the screen to be black
 		ScreenUtils.clear(0, 0, 0, 1);
@@ -72,10 +126,11 @@ public class Main extends ApplicationAdapter {
 		// renders the snake and the snake tail
 		snake.render(batch, snakeHeadRenderer, snakeBodyRenderer, snakeHeadColor, snakeBodyColor);
 
+		score = Integer.toString(snake.score);
+
 		batch.begin();
-			score = Integer.toString(snake.score);
-			socreFont.draw(batch, "High Score: " + highScore, 693, 475);
-			socreFont.draw(batch, "Score: " + score, 725, 460);
+			scoreFont.draw(batch, "High Score: " + highScore, 693, 475);
+			scoreFont.draw(batch, "Score: " + score, 725, 460);
 		batch.end();
 	}
 	
@@ -84,7 +139,7 @@ public class Main extends ApplicationAdapter {
 		appleRenderer.dispose();
 		snakeHeadRenderer.dispose();
 		snakeBodyRenderer.dispose();
-		socreFont.dispose();
+		scoreFont.dispose();
 		batch.dispose();
 	}
 }

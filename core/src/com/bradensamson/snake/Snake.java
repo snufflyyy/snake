@@ -53,14 +53,6 @@ public class Snake {
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN) && snakeDirection != direction.up) {
             snakeDirection = direction.down;
         }
-        // pauses the game
-        if (Gdx.input.isKeyPressed(Input.Keys.P)) {
-            snakeDirection = null;
-        }
-        // restarts the game
-		if (Gdx.input.isKeyPressed(Input.Keys.R)) {
-            restart();
-        }
     }
 
     public void moveSnake() {
